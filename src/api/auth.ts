@@ -1,46 +1,117 @@
 import axios from 'axios';
+import { CONFIG } from '@/config';
 
-const api = axios.create({
-  baseURL: '/api', // 根据实际后端地址配置
-  timeout: 10000,
-  headers: {
-    'Content-Type': 'application/json'
-  }
-});
+// 创建axios实例
+const authApi = axios.create(CONFIG);
 
-export interface LoginParams {
-  username?: string;
-  password?: string;
-  phone?: string;
-  verifyCode?: string;
-  loginType: 'account' | 'phone';
-}
-
-export interface LoginResult {
+// 定义登录响应类型
+export interface LoginResponse {
   token: string;
-  userInfo: {
+  user: {
     id: string;
     username: string;
-    avatar?: string;
-    // ... 其他用户信息字段
+    email?: string;
+    phone?: string;
   };
 }
 
-export const login = async (params: LoginParams): Promise<LoginResult> => {
-  const { data } = await api.post<LoginResult>('/auth/login', params);
-  return data;
+// 定义登录参数类型
+export interface LoginParams {
+  username: string;
+  password: string;
+}
+
+// API 接口定义
+export const AuthApi = {
+  // 用户名密码登录
+  login: async (params: LoginParams) => {
+    const response = await authApi.post<LoginResponse>('/auth/login', params);
+    return response.data;
+  },
+
+  // 手机号验证码登录
+  loginWithPhone: async (phone: string, code: string) => {
+    const response = await authApi.post<LoginResponse>('/auth/login/phone', {
+      phone,
+      code,
+    });
+    return response.data;
+  },
+
+  // 发送手机验证码
+  sendVerifyCode: async (phone: string) => {
+    const response = await authApi.post<{ message: string }>('/auth/send-code', {
+      phone,
+    });
+    return response.data;
+  },
+
+  // 飞书登录
+  loginWithFeishu: async (code: string) => {
+    const response = await authApi.post<LoginResponse>('/auth/feishu', { code });
+    return response.data;
+  },
+
+  // 微信登录
+  loginWithWechat: async (code: string) => {
+    const response = await authApi.post<LoginResponse>('/auth/wechat', { code });
+    return response.data;
+  },
+
+  // 获取飞书登录URL
+  getFeishuLoginUrl: async () => {
+    const response = await authApi.get<{ url: string }>('/auth/feishu/url');
+    return response.data.url;
+  },
+
+  // 获取微信登录URL
+  getWechatLoginUrl: async () => {
+    const response = await authApi.get<{ url: string }>('/auth/wechat/url');
+    return response.data.url;
+  },
+
+  // 登出
+  logout: async () => {
+    const response = await authApi.post('/auth/logout');
+    return response.data;
+  },
+
+  // 获取当前用户信息
+  getCurrentUser: async () => {
+    const response = await authApi.get<LoginResponse['user']>('/auth/me');
+    return response.data;
+  },
+
+  // Google登录
+  loginWithGoogle: async (code: string) => {
+    const response = await authApi.post<LoginResponse>('/auth/google', { code });
+    return response.data;
+  },
+
+  // GitHub登录
+  loginWithGithub: async (code: string) => {
+    const response = await authApi.post<LoginResponse>('/auth/github', { code });
+    return response.data;
+  },
+
+  // 获取Google登录URL
+  getGoogleLoginUrl: async () => {
+    const response = await authApi.get<{ url: string }>('/auth/google/url');
+    return response.data.url;
+  },
+
+  // 获取GitHub登录URL
+  getGithubLoginUrl: async () => {
+    const response = await authApi.get<{ url: string }>('/auth/github/url');
+    return response.data.url;
+  },
 };
 
-export const sendVerifyCode = async (phone: string): Promise<void> => {
-  await api.post('/auth/verify-code', { phone });
-};
-
-// 处理请求和响应拦截
-api.interceptors.request.use(
+// 请求拦截器
+authApi.interceptors.request.use(
   (config) => {
-    // 可以在这里添加 token
     const token = localStorage.getItem('token');
-    if (token) {
+    if (token && config.headers) {
       config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
@@ -50,31 +121,10 @@ api.interceptors.request.use(
   }
 );
 
-api.interceptors.response.use(
+// 响应拦截器
+authApi.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response) {
-      // 处理错误响应
-      switch (error.response.status) {
-        case 401:
-          // 未授权，清除 token 并跳转到登录页
-          localStorage.removeItem('token');
-          window.location.href = '/login';
-          break;
-        case 403:
-          // 权限不足
-          console.error('没有权限访问该资源');
-          break;
-        case 500:
-          // 服务器错误
-          console.error('服务器错误');
-          break;
-        default:
-          console.error('请求失败:', error.response.data?.message || '未知错误');
-      }
-    }
     return Promise.reject(error);
   }
-);
-
-export default api; 
+); 

@@ -1,63 +1,42 @@
 import { useState, useCallback } from 'react';
 import { message } from 'antd';
 import styles from './login.module.css';
-import wechatIcon from '../../assets/icons/wechat.svg';
-import feishuIcon from '../../assets/icons/feishu.svg';
-import { login, sendVerifyCode, LoginParams } from '../../api/auth';
-
-interface LoginForm {
-  username: string;
-  password: string;
-  phone: string;
-  verifyCode: string;
-}
+import { authService, type LoginFormData, type SocialPlatform } from '@/services/auth';
+import wechatIcon from '@/assets/icons/wechat.svg';
+import feishuIcon from '@/assets/icons/feishu.svg';
+import googleIcon from '@/assets/icons/google.svg';
+import githubIcon from '@/assets/icons/github.svg';
 
 const Login = () => {
   const [loginType, setLoginType] = useState<'account' | 'phone'>('account');
-  const [formData, setFormData] = useState<LoginForm>({
+  const [formData, setFormData] = useState<LoginFormData>({
     username: '',
     password: '',
     phone: '',
     verifyCode: '',
+    loginType: 'account',
   });
   const [countdown, setCountdown] = useState(0);
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
+  const handleSubmit = async () => {
     try {
       setLoading(true);
-      
-      const params: LoginParams = {
+      const data: LoginFormData = {
         loginType,
-        ...(loginType === 'account' 
-          ? { 
-              username: formData.username, 
-              password: formData.password 
-            }
-          : { 
-              phone: formData.phone, 
-              verifyCode: formData.verifyCode 
-            }
-        )
+        username: formData.username,
+        password: formData.password,
+        phone: formData.phone,
+        verifyCode: formData.verifyCode
       };
 
-      const result = await login(params);
-      
-      // 保存 token
-      localStorage.setItem('token', result.token);
-      
-      // 保存用户信息
-      localStorage.setItem('userInfo', JSON.stringify(result.userInfo));
-      
-      message.success('登录成功');
-      
-      // 跳转到首页或其他页面
-      window.location.href = '/';
-      
-    } catch (error: any) {
-      message.error(error.response?.data?.message || '登录失败，请重试');
+      const result = await authService.handleLogin(data);
+      if (result) {
+        // 登录成功后的跳转
+        window.location.href = '/dashboard';
+      }
+    } catch (error) {
+      console.error('登录失败:', error);
     } finally {
       setLoading(false);
     }
@@ -71,14 +50,8 @@ const Login = () => {
     }));
   };
 
-  const handleSocialLogin = (platform: string) => {
-    // 根据不同平台跳转到对应的第三方登录页面
-    const platformUrls = {
-      wechat: '/api/auth/wechat',
-      feishu: '/api/auth/feishu'
-    };
-    
-    window.location.href = platformUrls[platform as keyof typeof platformUrls];
+  const handleSocialLogin = async (platform: SocialPlatform) => {
+    await authService.handleSocialLogin(platform);
   };
 
   const handleSendCode = useCallback(async () => {
@@ -86,11 +59,11 @@ const Login = () => {
     
     try {
       // 简单的手机号验证
-      if (!/^1[3-9]\d{9}$/.test(formData.phone)) {
+      if (!formData.phone || !/^1[3-9]\d{9}$/.test(formData.phone)) {
         return message.error('请输入正确的手机号');
       }
       
-      await sendVerifyCode(formData.phone);
+      await authService.sendVerifyCode(formData.phone);
       message.success('验证码已发送');
       
       setCountdown(60);
@@ -215,16 +188,28 @@ const Login = () => {
             </div>
             <div className={styles.socialLogin}>
               <div 
-                className={styles.socialButton}
+                className={styles.socialButton} 
                 onClick={() => handleSocialLogin('wechat')}
               >
-                <img src={wechatIcon} alt="微信登录" />
+                <img src={wechatIcon} alt="WeChat" />
               </div>
               <div 
-                className={styles.socialButton}
+                className={styles.socialButton} 
                 onClick={() => handleSocialLogin('feishu')}
               >
-                <img src={feishuIcon} alt="飞书登录" />
+                <img src={feishuIcon} alt="Feishu" />
+              </div>
+              <div 
+                className={styles.socialButton} 
+                onClick={() => handleSocialLogin('google')}
+              >
+                <img src={googleIcon} alt="Google" />
+              </div>
+              <div 
+                className={styles.socialButton} 
+                onClick={() => handleSocialLogin('github')}
+              >
+                <img src={githubIcon} alt="GitHub" />
               </div>
             </div>
           </form>

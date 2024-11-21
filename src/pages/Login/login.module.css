@@ -198,6 +198,10 @@
   gap: 16px;
   margin-top: 24px;
   justify-content: center;
+  flex-wrap: wrap;
+  max-width: 240px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .socialButton {
@@ -323,4 +327,29 @@
   border-color: #d9d9d9;
   color: #d9d9d9;
   cursor: not-allowed;
+}
+
+/* 输入框样式 */
+:global(.ant-input) {
+  background-color: #fff !important;  /* 确保输入框背景为白色 */
+  color: rgba(0, 0, 0, 0.88) !important;  /* 文字颜色设为近黑色 */
+  border-color: #d9d9d9 !important;  /* 边框颜色 */
+}
+
+:global(.ant-input:hover) {
+  border-color: #4096ff !important;  /* 鼠标悬停时的边框颜色 */
+}
+
+:global(.ant-input:focus) {
+  border-color: #1890ff !important;  /* 输入框聚焦时的边框颜色 */
+  box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.1) !important;  /* 聚焦时的阴影效果 */
+}
+
+:global(.ant-input-password) {
+  background-color: #fff !important;  /* 密码输入框背景为白色 */
+}
+
+:global(.ant-input-password input) {
+  background-color: transparent !important;  /* 密码输入框内部input背景透明 */
+  color: rgba(0, 0, 0, 0.88) !important;  /* 密码文字颜色 */
 } 
