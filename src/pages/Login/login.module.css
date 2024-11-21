@@ -90,70 +90,43 @@
   font-size: 14px;
 }
 
-.formGroup {
-  margin-bottom: 20px;
+.verifyCodeGroup {
+  display: flex;
+  gap: 12px;
 }
 
-.formGroup label {
-  display: block;
-  margin-bottom: 8px;
-  color: #333;
-  font-size: 14px;
-  font-weight: 500;
+.verifyCodeGroup > :global(.ant-input-affix-wrapper) {
+  flex: 1;
 }
 
-.formGroup input {
-  width: 100%;
-  padding: 10px;
-  border: 1px solid #e8e8e8;
-  border-radius: 4px;
-  font-size: 14px;
-  transition: all 0.3s;
-  box-sizing: border-box;
+.captchaGroup {
+  display: flex;
+  gap: 12px;
 }
 
-.formGroup input:focus {
-  border-color: #1890ff;
-  box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
-  outline: none;
+.captchaGroup > :global(.ant-input-affix-wrapper) {
+  flex: 1;
+}
+
+.captchaImage {
+  height: 40px;
+  cursor: pointer;
+  border-radius: 6px;
 }
 
 .rememberForgot {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 24px;
-}
-
-.remember {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  color: #666;
-  font-size: 14px;
 }
 
 .forgot {
   color: #1890ff;
   text-decoration: none;
-  font-size: 14px;
 }
 
-.loginBtn {
-  width: 100%;
-  padding: 12px;
-  background: #1890ff;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  font-size: 16px;
-  cursor: pointer;
-  transition: background 0.3s;
-  margin-top: 8px;
-}
-
-.loginBtn:hover {
-  background: #40a9ff;
+.forgot:hover {
+  color: #40a9ff;
 }
 
 .registerLink {
@@ -214,17 +187,16 @@
   border: 1px solid #e8e8e8;
   cursor: pointer;
   transition: all 0.3s;
-  color: #666;
   padding: 6px;
   box-sizing: border-box;
 }
 
 .socialButton:hover {
-  border-color: #3370FF;
+  border-color: #1890ff;
   background-color: #f0f7ff;
 }
 
-.socialButton svg {
+.socialButton img {
   width: 100%;
   height: 100%;
   display: block;
@@ -264,108 +236,4 @@
   .loginBox {
     padding: 24px 20px;
   }
-}
-
-.loginTabs {
-  display: flex;
-  justify-content: center;
-  margin-bottom: 24px;
-  gap: 32px;
-}
-
-.loginTab {
-  font-size: 16px;
-  color: #666;
-  cursor: pointer;
-  padding: 4px 0;
-  position: relative;
-  transition: color 0.3s;
-}
-
-.loginTab.active {
-  color: #1890ff;
-}
-
-.loginTab.active::after {
-  content: '';
-  position: absolute;
-  bottom: -2px;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background: #1890ff;
-  border-radius: 1px;
-}
-
-.verifyCodeGroup {
-  display: flex;
-  gap: 12px;
-}
-
-.verifyCodeGroup input {
-  flex: 1;
-}
-
-.verifyCodeBtn {
-  padding: 0 16px;
-  background: transparent;
-  border: 1px solid #1890ff;
-  border-radius: 4px;
-  color: #1890ff;
-  font-size: 14px;
-  cursor: pointer;
-  transition: all 0.3s;
-  white-space: nowrap;
-  min-width: 100px;
-}
-
-.verifyCodeBtn:hover {
-  background: #f0f9ff;
-}
-
-.verifyCodeBtn:disabled {
-  border-color: #d9d9d9;
-  color: #d9d9d9;
-  cursor: not-allowed;
-}
-
-/* 输入框样式 */
-:global(.ant-input) {
-  background-color: #fff !important;  /* 确保输入框背景为白色 */
-  color: rgba(0, 0, 0, 0.88) !important;  /* 文字颜色设为近黑色 */
-  border-color: #d9d9d9 !important;  /* 边框颜色 */
-}
-
-:global(.ant-input:hover) {
-  border-color: #4096ff !important;  /* 鼠标悬停时的边框颜色 */
-}
-
-:global(.ant-input:focus) {
-  border-color: #1890ff !important;  /* 输入框聚焦时的边框颜色 */
-  box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.1) !important;  /* 聚焦时的阴影效果 */
-}
-
-:global(.ant-input-password) {
-  background-color: #fff !important;  /* 密码输入框背景为白色 */
-}
-
-:global(.ant-input-password input) {
-  background-color: transparent !important;  /* 密码输入框内部input背景透明 */
-  color: rgba(0, 0, 0, 0.88) !important;  /* 密码文字颜色 */
-}
-
-.captchaGroup {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-}
-
-.captchaGroup input {
-  flex: 1;
-}
-
-.captchaImage {
-  height: 40px;
-  cursor: pointer;
-  border-radius: 4px;
 } 
