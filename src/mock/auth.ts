@@ -174,16 +174,21 @@ export default [
       return {
         code: 200,
         data: {
-          totalUsers: 1234,
-          activeUsers: 923,
-          totalOrders: 6789,
-          pendingOrders: 56,
-          revenue: {
-            daily: 12500,
-            weekly: 85600,
-            monthly: 358000
+          stats: {
+            totalUsers: 1234,
+            activeUsers: 923,
+            totalOrders: 6789,
+            pendingOrders: 56,
+            revenue: {
+              daily: 12500,
+              weekly: 85600,
+              monthly: 358000,
+              dailyGrowth: 15.5,
+              weeklyGrowth: 8.2,
+              monthlyGrowth: 12.3,
+            }
           },
-          recentActivity: [
+          activities: [
             {
               id: 1,
               type: 'order',

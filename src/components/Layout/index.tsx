@@ -1,49 +1,41 @@
-import { Layout as AntLayout, Dropdown, Avatar, Menu } from 'antd';
-import { Outlet, useNavigate } from 'react-router-dom';
-import { UserOutlined, LogoutOutlined } from '@ant-design/icons';
-import { useAuth } from '@/hooks/useAuth';
+import React, { useState } from 'react';
+import { Layout } from 'antd';
+import { Outlet } from 'react-router-dom';
+import SideMenu from './components/SideMenu';
+import HeaderContent from './components/HeaderContent';
 import styles from './layout.module.css';
 
-const { Header, Content } = AntLayout;
+const { Header, Sider, Content } = Layout;
 
-const Layout = () => {
-  const { getUserInfo, clearAuth } = useAuth();
-  const userInfo = getUserInfo();
-
-  const handleLogout = () => {
-    clearAuth();
-  };
-
-  const menu = (
-    <Menu>
-      <Menu.Item key="logout" icon={<LogoutOutlined />} onClick={handleLogout}>
-        退出登录
-      </Menu.Item>
-    </Menu>
-  );
+const ProLayout: React.FC = () => {
+  const [collapsed, setCollapsed] = useState(false);
 
   return (
-    <AntLayout className={styles.layout}>
-      <Header className={styles.header}>
-        <div className={styles.logo}>管理系统</div>
-        <div className={styles.userInfo}>
-          <Dropdown overlay={menu} placement="bottomRight">
-            <span className={styles.userDropdown}>
-              <Avatar 
-                src={userInfo?.avatar} 
-                icon={<UserOutlined />} 
-                size="small" 
-              />
-              <span className={styles.username}>{userInfo?.username}</span>
-            </span>
-          </Dropdown>
+    <Layout className={styles.layout}>
+      <Sider 
+        trigger={null} 
+        collapsible 
+        collapsed={collapsed}
+        theme="dark"
+        width={256}
+      >
+        <SideMenu collapsed={collapsed} />
+      </Sider>
+      <Layout>
+        <Header className={styles.header}>
+          <HeaderContent 
+            collapsed={collapsed}
+            onCollapse={() => setCollapsed(!collapsed)}
+          />
+        </Header>
+        <div className={styles.contentWrapper}>
+          <Content className={styles.content}>
+            <Outlet />
+          </Content>
         </div>
-      </Header>
-      <Content className={styles.content}>
-        <Outlet />
-      </Content>
-    </AntLayout>
+      </Layout>
+    </Layout>
   );
 };
 
-export default Layout; 
+export default ProLayout; 

@@ -1,176 +1,142 @@
-import { useEffect, useState } from 'react';
-import { Row, Col, Typography } from 'antd';
-import { 
-  UserOutlined, 
-  ShoppingCartOutlined, 
-  DollarOutlined,
-  ClockCircleOutlined 
-} from '@ant-design/icons';
-import { 
-  ProCard,
-  ProList,
-  StatisticCard 
-} from '@ant-design/pro-components';
-import { dashboardService } from '@/services/dashboard';
-import type { DashboardData, DashboardActivity } from '@/types/api';
+import React from 'react';
+import { Row, Col, List, Tag, Spin } from 'antd';
+import { ArrowUpOutlined, ArrowDownOutlined } from '@ant-design/icons';
+import PageContainer from '@/components/PageContainer';
+import StatCard from '@/components/StatCard';
+import { useDashboard } from '@/hooks/useDashboard';
+import { ActivityItem } from '@/services/dashboard';
 import styles from './dashboard.module.css';
+import commonStyles from '@/styles/common.module.css';
 
-const { Title } = Typography;
-const { Divider } = StatisticCard;
+const Dashboard: React.FC = () => {
+  const { data, loading } = useDashboard();
 
-const Dashboard = () => {
-  const [data, setData] = useState<DashboardData | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const result = await dashboardService.getOverview();
-        setData(result);
-      } catch (error) {
-        console.error('获取仪表盘数据失败:', error);
-      } finally {
-        setLoading(false);
-      }
+  const getActivityIcon = (type: string) => {
+    const iconMap = {
+      order: <Tag color="blue">订单</Tag>,
+      user: <Tag color="green">用户</Tag>,
+      system: <Tag color="orange">系统</Tag>
     };
+    return iconMap[type as keyof typeof iconMap];
+  };
 
-    fetchData();
-  }, []);
-
-  if (!data) {
-    return <div>加载中...</div>;
+  if (loading || !data) {
+    return (
+      <div className={commonStyles.flexCenter}>
+        <Spin size="large" />
+      </div>
+    );
   }
 
-  return (
-    <div className={styles.container}>
-      <Title level={2}>仪表盘概览</Title>
-      
-      <Row gutter={[16, 16]}>
-        <Col xs={24} sm={12} lg={6}>
-          <ProCard loading={loading}>
-            <StatisticCard
-              statistic={{
-                title: '总用户数',
-                value: data.totalUsers,
-                icon: <UserOutlined />,
-                description: <div>活跃用户：{data.activeUsers}</div>
-              }}
-            />
-          </ProCard>
-        </Col>
-        <Col xs={24} sm={12} lg={6}>
-          <ProCard loading={loading}>
-            <StatisticCard
-              statistic={{
-                title: '总订单数',
-                value: data.totalOrders,
-                icon: <ShoppingCartOutlined />,
-                description: <div>待处理：{data.pendingOrders}</div>
-              }}
-            />
-          </ProCard>
-        </Col>
-        <Col xs={24} sm={12} lg={6}>
-          <ProCard loading={loading}>
-            <StatisticCard
-              statistic={{
-                title: '待处理订单',
-                value: data.pendingOrders,
-                icon: <ClockCircleOutlined />,
-                status: 'processing'
-              }}
-            />
-          </ProCard>
-        </Col>
-        <Col xs={24} sm={12} lg={6}>
-          <ProCard loading={loading}>
-            <StatisticCard
-              statistic={{
-                title: '本月收入',
-                prefix: '¥',
-                value: data.revenue.monthly,
-                icon: <DollarOutlined />,
-                precision: 2
-              }}
-            />
-          </ProCard>
-        </Col>
-      </Row>
+  const { stats, activities } = data;
 
-      <Row gutter={[16, 16]} className={styles.secondRow}>
-        <Col xs={24} lg={16}>
-          <ProCard
-            title="收入统计"
-            loading={loading}
-            className={styles.revenueCard}
-          >
-            <StatisticCard.Group>
-              <StatisticCard
-                statistic={{
-                  title: '今日收入',
-                  value: data.revenue.daily,
-                  precision: 2,
-                  prefix: '¥'
-                }}
-              />
-              <Divider />
-              <StatisticCard
-                statistic={{
-                  title: '本周收入',
-                  value: data.revenue.weekly,
-                  precision: 2,
-                  prefix: '¥'
-                }}
-              />
-              <Divider />
-              <StatisticCard
-                statistic={{
-                  title: '本月收入',
-                  value: data.revenue.monthly,
-                  precision: 2,
-                  prefix: '¥'
-                }}
-              />
-            </StatisticCard.Group>
-          </ProCard>
-        </Col>
-        <Col xs={24} lg={8}>
-          <ProCard
-            title="最近活动"
-            loading={loading}
-            className={styles.activityCard}
-          >
-            <ProList<DashboardActivity>
-              dataSource={data.recentActivity}
-              rowKey="id"
-              showActions="hover"
-              showExtra="hover"
-              metas={{
-                title: {
-                  dataIndex: 'content',
-                },
-                description: {
-                  render: (_, record) => (
-                    <div>{new Date(record.timestamp).toLocaleString()}</div>
-                  ),
-                },
-                type: {
-                  dataIndex: 'type',
-                  render: (text) => {
-                    const typeMap = {
-                      order: '订单',
-                      user: '用户',
-                      system: '系统'
-                    };
-                    return typeMap[text as keyof typeof typeMap] || text;
-                  }
-                }
-              }}
+  return (
+    <PageContainer>
+      <div className={styles.dashboard}>
+        <Row gutter={[16, 16]}>
+          <Col xs={24} sm={12} lg={6}>
+            <StatCard
+              title="总用户数"
+              value={stats.totalUsers}
+              prefix={<ArrowUpOutlined />}
+              valueStyle={{ color: '#3f8600' }}
             />
-          </ProCard>
-        </Col>
-      </Row>
-    </div>
+          </Col>
+          <Col xs={24} sm={12} lg={6}>
+            <StatCard
+              title="活跃用户"
+              value={stats.activeUsers}
+              prefix={<ArrowDownOutlined />}
+              valueStyle={{ color: '#cf1322' }}
+            />
+          </Col>
+          <Col xs={24} sm={12} lg={6}>
+            <StatCard
+              title="总订单数"
+              value={stats.totalOrders}
+            />
+          </Col>
+          <Col xs={24} sm={12} lg={6}>
+            <StatCard
+              title="待处理订单"
+              value={stats.pendingOrders}
+              valueStyle={{ color: '#faad14' }}
+            />
+          </Col>
+        </Row>
+
+        <Row gutter={[16, 16]} className={commonStyles.mt24}>
+          <Col xs={24} lg={12}>
+            <div className={`${commonStyles.card} ${styles.revenueCard}`}>
+              <h3 className={commonStyles.textPrimary}>收入统计</h3>
+              <Row gutter={[16, 16]}>
+                <Col span={8}>
+                  <StatCard
+                    title="日收入"
+                    value={stats.revenue.daily}
+                    precision={2}
+                    prefix="¥"
+                    suffix={
+                      <small style={{ fontSize: '12px', color: '#52c41a' }}>
+                        +{stats.revenue.dailyGrowth}%
+                      </small>
+                    }
+                  />
+                </Col>
+                <Col span={8}>
+                  <StatCard
+                    title="周收入"
+                    value={stats.revenue.weekly}
+                    precision={2}
+                    prefix="¥"
+                    suffix={
+                      <small style={{ fontSize: '12px', color: '#52c41a' }}>
+                        +{stats.revenue.weeklyGrowth}%
+                      </small>
+                    }
+                  />
+                </Col>
+                <Col span={8}>
+                  <StatCard
+                    title="月收入"
+                    value={stats.revenue.monthly}
+                    precision={2}
+                    prefix="¥"
+                    suffix={
+                      <small style={{ fontSize: '12px', color: '#52c41a' }}>
+                        +{stats.revenue.monthlyGrowth}%
+                      </small>
+                    }
+                  />
+                </Col>
+              </Row>
+            </div>
+          </Col>
+          <Col xs={24} lg={12}>
+            <div className={`${commonStyles.card} ${styles.activityCard}`}>
+              <h3 className={commonStyles.textPrimary}>最近活动</h3>
+              <List
+                itemLayout="horizontal"
+                dataSource={activities}
+                renderItem={(item: ActivityItem) => (
+                  <List.Item>
+                    <List.Item.Meta
+                      avatar={getActivityIcon(item.type)}
+                      title={<span className={commonStyles.textPrimary}>{item.content}</span>}
+                      description={
+                        <span className={commonStyles.textSecondary}>
+                          {new Date(item.timestamp).toLocaleString()}
+                        </span>
+                      }
+                    />
+                  </List.Item>
+                )}
+              />
+            </div>
+          </Col>
+        </Row>
+      </div>
+    </PageContainer>
   );
 };
 

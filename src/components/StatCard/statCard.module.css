@@ -1,0 +1,39 @@
+.card {
+  height: 100%;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.03);
+  border-radius: 4px;
+}
+
+:global(.ant-card-body) {
+  padding: 20px 24px;
+}
+
+:global(.ant-statistic-title) {
+  font-size: 14px;
+  color: rgba(0, 0, 0, 0.45);
+  margin-bottom: 8px;
+}
+
+:global(.ant-statistic-content) {
+  font-size: 24px;
+  font-weight: 500;
+}
+
+:global(.ant-statistic-content-prefix) {
+  margin-right: 8px;
+}
+
+:global(.ant-statistic-content-suffix) {
+  margin-left: 8px;
+  font-size: 14px;
+}
+
+@media (max-width: 768px) {
+  :global(.ant-card-body) {
+    padding: 16px;
+  }
+  
+  :global(.ant-statistic-content) {
+    font-size: 20px;
+  }
+} 
