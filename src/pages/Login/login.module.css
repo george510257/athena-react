@@ -352,4 +352,20 @@
 :global(.ant-input-password input) {
   background-color: transparent !important;  /* 密码输入框内部input背景透明 */
   color: rgba(0, 0, 0, 0.88) !important;  /* 密码文字颜色 */
+}
+
+.captchaGroup {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.captchaGroup input {
+  flex: 1;
+}
+
+.captchaImage {
+  height: 40px;
+  cursor: pointer;
+  border-radius: 4px;
 } 

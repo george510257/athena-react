@@ -18,6 +18,7 @@ const Login = () => {
   });
   const [countdown, setCountdown] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [captchaInfo, setCaptchaInfo] = useState<{ id: string; url: string } | null>(null);
 
   const handleSubmit = async () => {
     try {
@@ -27,16 +28,20 @@ const Login = () => {
         username: formData.username,
         password: formData.password,
         phone: formData.phone,
-        verifyCode: formData.verifyCode
+        verifyCode: formData.verifyCode,
+        captcha: formData.captcha,
+        captchaId: captchaInfo?.id
       };
 
       const result = await authService.handleLogin(data);
       if (result) {
-        // 登录成功后的跳转
         window.location.href = '/dashboard';
+      } else {
+        refreshCaptcha();
       }
     } catch (error) {
       console.error('登录失败:', error);
+      refreshCaptcha();
     } finally {
       setLoading(false);
     }
@@ -58,28 +63,71 @@ const Login = () => {
     if (countdown > 0) return;
     
     try {
-      // 简单的手机号验证
       if (!formData.phone || !/^1[3-9]\d{9}$/.test(formData.phone)) {
         return message.error('请输入正确的手机号');
       }
       
-      await authService.sendVerifyCode(formData.phone);
-      message.success('验证码已发送');
+      const success = await authService.sendVerifyCode(
+        formData.phone,
+        formData.captcha,
+        captchaInfo?.id
+      );
       
-      setCountdown(60);
-      const timer = setInterval(() => {
-        setCountdown((prev) => {
-          if (prev <= 1) {
-            clearInterval(timer);
-            return 0;
-          }
-          return prev - 1;
-        });
-      }, 1000);
+      if (success) {
+        setCountdown(60);
+        const timer = setInterval(() => {
+          setCountdown((prev) => {
+            if (prev <= 1) {
+              clearInterval(timer);
+              return 0;
+            }
+            return prev - 1;
+          });
+        }, 1000);
+      } else {
+        refreshCaptcha();
+      }
     } catch (error: any) {
       message.error(error.response?.data?.message || '验证码发送失败，请重试');
+      refreshCaptcha();
     }
-  }, [formData.phone, countdown]);
+  }, [formData.phone, formData.captcha, captchaInfo, countdown]);
+
+  const refreshCaptcha = async () => {
+    const result = await authService.getCaptcha();
+    if (result) {
+      setCaptchaInfo({
+        id: result.captchaId,
+        url: result.captchaUrl
+      });
+    }
+  };
+
+  const renderCaptchaInput = () => {
+    if (!captchaInfo) return null;
+
+    return (
+      <div className={styles.formGroup}>
+        <label htmlFor="captcha">图片验证码</label>
+        <div className={styles.captchaGroup}>
+          <input
+            type="text"
+            id="captcha"
+            name="captcha"
+            value={formData.captcha}
+            onChange={handleChange}
+            placeholder="请输入验证码"
+          />
+          <img
+            src={captchaInfo.url}
+            alt="验证码"
+            onClick={refreshCaptcha}
+            className={styles.captchaImage}
+          />
+        </div>
+      </div>
+    );
+  };
 
   return (
     <div className={styles.container}>
@@ -177,6 +225,7 @@ const Login = () => {
                 </div>
               </>
             )}
+            {renderCaptchaInput()}
             <button type="submit" className={styles.loginBtn} disabled={loading}>
               {loading ? '登录中...' : '登录'}
             </button>

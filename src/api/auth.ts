@@ -24,24 +24,28 @@ export interface LoginParams {
 // API 接口定义
 export const AuthApi = {
   // 用户名密码登录
-  login: async (params: LoginParams) => {
+  login: async (params: LoginParams & { captcha?: string; captchaId?: string }) => {
     const response = await authApi.post<LoginResponse>('/auth/login', params);
     return response.data;
   },
 
   // 手机号验证码登录
-  loginWithPhone: async (phone: string, code: string) => {
+  loginWithPhone: async (phone: string, code: string, captcha?: string, captchaId?: string) => {
     const response = await authApi.post<LoginResponse>('/auth/login/phone', {
       phone,
       code,
+      captcha,
+      captchaId,
     });
     return response.data;
   },
 
   // 发送手机验证码
-  sendVerifyCode: async (phone: string) => {
+  sendVerifyCode: async (phone: string, captcha?: string, captchaId?: string) => {
     const response = await authApi.post<{ message: string }>('/auth/send-code', {
       phone,
+      captcha,
+      captchaId,
     });
     return response.data;
   },
@@ -104,6 +108,12 @@ export const AuthApi = {
   getGithubLoginUrl: async () => {
     const response = await authApi.get<{ url: string }>('/auth/github/url');
     return response.data.url;
+  },
+
+  // 获取图片验证码
+  getCaptcha: async () => {
+    const response = await authApi.get<{ captchaId: string; captchaUrl: string }>('/auth/captcha');
+    return response.data;
   },
 };
 
