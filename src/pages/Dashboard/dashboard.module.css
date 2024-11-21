@@ -1,0 +1,36 @@
+.container {
+  padding: 24px;
+  background: #f0f2f5;
+}
+
+.secondRow {
+  margin-top: 24px;
+}
+
+.revenueCard,
+.activityCard {
+  height: 100%;
+}
+
+.activityCard {
+  min-height: 400px;
+}
+
+/* 响应式调整 */
+@media (max-width: 576px) {
+  .container {
+    padding: 12px;
+  }
+  
+  .secondRow {
+    margin-top: 12px;
+  }
+}
+
+:global(.ant-pro-card-statistic-content) {
+  padding: 8px 0;
+}
+
+:global(.ant-pro-list-row) {
+  padding: 12px 24px;
+} 

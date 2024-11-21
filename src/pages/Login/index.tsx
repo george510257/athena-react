@@ -1,8 +1,10 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { Form, Input, Button, Checkbox, Tabs, message } from 'antd';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { UserOutlined, LockOutlined, MobileOutlined, SafetyCertificateOutlined } from '@ant-design/icons';
 import styles from './login.module.css';
 import { authService, type LoginFormData, type SocialPlatform } from '@/services/auth';
+import { useAuth } from '@/hooks/useAuth';
 import wechatIcon from '@/assets/icons/wechat.svg';
 import feishuIcon from '@/assets/icons/feishu.svg';
 import googleIcon from '@/assets/icons/google.svg';
@@ -12,10 +14,20 @@ const { TabPane } = Tabs;
 
 const Login = () => {
   const [form] = Form.useForm();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { setAuth } = useAuth();
   const [loginType, setLoginType] = useState<'account' | 'phone'>('account');
   const [countdown, setCountdown] = useState(0);
   const [loading, setLoading] = useState(false);
   const [captchaInfo, setCaptchaInfo] = useState<{ id: string; url: string } | null>(null);
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      navigate('/dashboard');
+    }
+  }, [navigate]);
 
   const handleSubmit = async (values: any) => {
     try {
@@ -28,7 +40,10 @@ const Login = () => {
 
       const result = await authService.handleLogin(data);
       if (result) {
-        window.location.href = '/dashboard';
+        setAuth(result.token, result.user);
+        message.success('登录成功');
+        const from = (location.state as any)?.from?.pathname || '/dashboard';
+        navigate(from);
       } else {
         refreshCaptcha();
       }
