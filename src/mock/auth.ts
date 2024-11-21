@@ -1,5 +1,6 @@
 import { MockMethod } from 'vite-plugin-mock'
 
+// 用户信息接口定义
 interface UserInfo {
   id: number
   username: string
@@ -8,20 +9,24 @@ interface UserInfo {
   role: string
 }
 
+// Token 映射接口
 interface TokenMap {
   admin: string
   user: string
 }
 
+// 用户映射接口
 interface UserMap {
   [key: string]: UserInfo
 }
 
+// 模拟的 token 数据
 const tokens: TokenMap = {
   admin: 'admin-token',
   user: 'user-token'
 }
 
+// 模拟的用户数据
 const users: UserMap = {
   'admin-token': {
     id: 1,
@@ -39,6 +44,7 @@ const users: UserMap = {
   }
 }
 
+// 请求体接口定义
 interface RequestBody {
   username?: string
   password?: string
@@ -48,7 +54,7 @@ interface RequestBody {
 }
 
 export default [
-  // 获取验证码
+  // 获取验证码接口
   {
     url: '/api/auth/captcha',
     method: 'get',
@@ -62,13 +68,15 @@ export default [
       }
     }
   },
-  // 登录接口
+  
+  // 登录接口 - 支持账号密码和手机号验证码两种方式
   {
     url: '/api/auth/login',
     method: 'post',
     response: ({ body }: { body: RequestBody }) => {
       const { username, password, loginType, phone, verifyCode } = body
 
+      // 账号密码登录
       if (loginType === 'account') {
         if (username === 'admin' && password === '123456') {
           return {
@@ -94,6 +102,7 @@ export default [
         }
       }
 
+      // 手机号验证码登录
       if (loginType === 'phone') {
         if (phone === '13800138000' && verifyCode === '123456') {
           return {
@@ -116,7 +125,8 @@ export default [
       }
     }
   },
-  // 发送验证码
+
+  // 发送验证码接口
   {
     url: '/api/auth/verify-code',
     method: 'post',
@@ -136,7 +146,8 @@ export default [
       }
     }
   },
-  // 获取用户信息
+
+  // 获取用户信息接口
   {
     url: '/api/user/info',
     method: 'get',
@@ -154,7 +165,8 @@ export default [
       }
     }
   },
-  // 获取仪表盘数据
+
+  // 获取仪表盘数据接口
   {
     url: '/api/dashboard/overview',
     method: 'get',
