@@ -14,12 +14,18 @@ import {
   ProFormText,
   ProCard,
 } from '@ant-design/pro-components';
-import { message, Tabs, Space, Divider, App } from 'antd';
+import { Tabs, Space, Divider, App } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import styles from './index.module.less';
 import logo from '../../assets/logo.svg';
 
 type LoginType = 'account' | 'phone';
+
+const thirdPartyLogins = [
+  { Icon: GoogleOutlined, text: 'Google登录' },
+  { Icon: GithubOutlined, text: 'Github登录' },
+  { Icon: WechatOutlined, text: '微信登录' },
+];
 
 const Login: React.FC = () => {
   const [loginType, setLoginType] = useState<LoginType>('account');
@@ -42,7 +48,7 @@ const Login: React.FC = () => {
           antMessage.error('用户名或密码错误');
         }
       } else {
-        const { mobile, captcha } = values;
+        const { captcha } = values;
         if (captcha === '1234') {
           antMessage.success('登录成功');
           navigate('/');
@@ -69,18 +75,13 @@ const Login: React.FC = () => {
                 <span className={styles.dividerText}>其他登录方式</span>
               </Divider>
               <Space align="center" size={24}>
-                <GoogleOutlined 
-                  className={styles.icon} 
-                  onClick={() => antMessage.info('Google登录开发中')}
-                />
-                <GithubOutlined 
-                  className={styles.icon} 
-                  onClick={() => antMessage.info('Github登录开发中')}
-                />
-                <WechatOutlined 
-                  className={styles.icon}
-                  onClick={() => antMessage.info('微信登录开发中')}
-                />
+                {thirdPartyLogins.map(({ Icon, text }) => (
+                  <Icon
+                    key={text}
+                    className={styles.icon}
+                    onClick={() => antMessage.info(`${text}开发中`)}
+                  />
+                ))}
               </Space>
             </div>
           }
