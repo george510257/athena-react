@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import {
   LockOutlined,
   MobileOutlined,
@@ -15,14 +15,10 @@ import {
   ProFormText,
   ProCard,
 } from '@ant-design/pro-components';
-import { Tabs, Space, Divider, App, Input, Button } from 'antd';
-import { useNavigate } from 'react-router-dom';
+import { Tabs, Space, Divider } from 'antd';
 import styles from './index.module.less';
-import logo from '../../assets/logo.svg';
-import { v4 as uuidv4 } from 'uuid';
-import { login } from '@/api/auth';
-
-type LoginType = 'account' | 'phone';
+import logo from '@/assets/logo.svg';
+import useLogin from './hooks/useLogin';
 
 const thirdPartyLogins = [
   { Icon: GoogleOutlined, text: 'Google登录' },
@@ -31,57 +27,17 @@ const thirdPartyLogins = [
 ];
 
 const Login: React.FC = () => {
-  const [loginType, setLoginType] = useState<LoginType>('account');
-  const [loading, setLoading] = useState(false);
-  const [captchaUuid, setCaptchaUuid] = useState(uuidv4());
-  const [imageCaptchaUrl, setImageCaptchaUrl] = useState('');
-  const navigate = useNavigate();
-  const { message: antMessage } = App.useApp();
+  const {
+    loginState,
+    handleLoginTypeChange,
+    handleSubmit,
+    refreshCaptcha,
+    handleThirdPartyLogin,
+    handleForgotPassword,
+    handleGetPhoneCaptcha,
+  } = useLogin();
 
-  useEffect(() => {
-    refreshCaptcha();
-  }, []);
-
-  const refreshCaptcha = () => {
-    const newUuid = uuidv4();
-    setCaptchaUuid(newUuid);
-    setImageCaptchaUrl(`http://localhost:8082/captcha/image?uuid=${newUuid}`);
-  };
-
-  const handleSubmit = async (values: any) => {
-    setLoading(true);
-    try {
-      if (loginType === 'account') {
-        const { username, password, imageCaptchaValue } = values;
-        const loginResult = await login({
-          username,
-          password,
-          imageCaptcha: imageCaptchaValue,
-          uuid: captchaUuid
-        });
-        
-        if (loginResult.success) {
-          antMessage.success('登录成功');
-          if (values.rememberMe) {
-            localStorage.setItem('username', username);
-          }
-          navigate('/');
-        } else {
-          antMessage.error(loginResult.message || '登录失败');
-        }
-      } else {
-        const { captcha } = values;
-        if (captcha === '1234') {
-          antMessage.success('登录成功');
-          navigate('/');
-        } else {
-          antMessage.error('验证码错误');
-        }
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
+  const { loginType, loading, imageCaptchaUrl } = loginState;
 
   return (
     <div className={styles.container}>
@@ -101,7 +57,7 @@ const Login: React.FC = () => {
                   <Icon
                     key={text}
                     className={styles.icon}
-                    onClick={() => antMessage.info(`${text}开发中`)}
+                    onClick={() => handleThirdPartyLogin(text)}
                   />
                 ))}
               </Space>
@@ -112,7 +68,7 @@ const Login: React.FC = () => {
           <Tabs
             centered
             activeKey={loginType}
-            onChange={(activeKey) => setLoginType(activeKey as LoginType)}
+            onChange={(activeKey) => handleLoginTypeChange(activeKey as 'account' | 'phone')}
             items={[
               {
                 key: 'account',
@@ -238,9 +194,7 @@ const Login: React.FC = () => {
                     message: '验证码长度应为4位',
                   },
                 ]}
-                onGetCaptcha={async () => {
-                  antMessage.success('验证码为: 1234');
-                }}
+                onGetCaptcha={handleGetPhoneCaptcha}
               />
             </>
           )}
@@ -248,7 +202,7 @@ const Login: React.FC = () => {
             <ProFormCheckbox noStyle name="rememberMe">
               记住密码
             </ProFormCheckbox>
-            <a className={styles.forgotPassword} onClick={() => antMessage.info('忘记密码功能开发中')}>
+            <a className={styles.forgotPassword} onClick={handleForgotPassword}>
               忘记密码？
             </a>
           </div>
