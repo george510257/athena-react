@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   LockOutlined,
   MobileOutlined,
@@ -6,6 +6,7 @@ import {
   GithubOutlined,
   WechatOutlined,
   GoogleOutlined,
+  ReloadOutlined,
 } from '@ant-design/icons';
 import {
   LoginForm,
@@ -14,10 +15,12 @@ import {
   ProFormText,
   ProCard,
 } from '@ant-design/pro-components';
-import { Tabs, Space, Divider, App } from 'antd';
+import { Tabs, Space, Divider, App, Input, Button } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import styles from './index.module.less';
 import logo from '../../assets/logo.svg';
+import { v4 as uuidv4 } from 'uuid';
+import { login } from '@/api/auth';
 
 type LoginType = 'account' | 'phone';
 
@@ -30,22 +33,41 @@ const thirdPartyLogins = [
 const Login: React.FC = () => {
   const [loginType, setLoginType] = useState<LoginType>('account');
   const [loading, setLoading] = useState(false);
+  const [captchaUuid, setCaptchaUuid] = useState(uuidv4());
+  const [imageCaptchaUrl, setImageCaptchaUrl] = useState('');
   const navigate = useNavigate();
   const { message: antMessage } = App.useApp();
+
+  useEffect(() => {
+    refreshCaptcha();
+  }, []);
+
+  const refreshCaptcha = () => {
+    const newUuid = uuidv4();
+    setCaptchaUuid(newUuid);
+    setImageCaptchaUrl(`http://localhost:8082/captcha/image?uuid=${newUuid}`);
+  };
 
   const handleSubmit = async (values: any) => {
     setLoading(true);
     try {
       if (loginType === 'account') {
-        const { username, password } = values;
-        if (username === 'admin' && password === 'admin') {
+        const { username, password, imageCaptchaValue } = values;
+        const loginResult = await login({
+          username,
+          password,
+          imageCaptcha: imageCaptchaValue,
+          uuid: captchaUuid
+        });
+        
+        if (loginResult.success) {
           antMessage.success('登录成功');
           if (values.rememberMe) {
             localStorage.setItem('username', username);
           }
           navigate('/');
         } else {
-          antMessage.error('用户名或密码错误');
+          antMessage.error(loginResult.message || '登录失败');
         }
       } else {
         const { captcha } = values;
@@ -138,6 +160,34 @@ const Login: React.FC = () => {
                   {
                     min: 5,
                     message: '密码至少5个字符',
+                  },
+                ]}
+              />
+              <ProFormText
+                name="imageCaptchaValue"
+                fieldProps={{
+                  size: 'large',
+                  suffix: (
+                    <Space>
+                      <img 
+                        src={imageCaptchaUrl} 
+                        alt="验证码"
+                        style={{ height: '32px', cursor: 'pointer' }}
+                        onClick={refreshCaptcha}
+                      />
+                      <ReloadOutlined onClick={refreshCaptcha} />
+                    </Space>
+                  ),
+                }}
+                placeholder="请输入图片验证码"
+                rules={[
+                  {
+                    required: true,
+                    message: '请输入验证码',
+                  },
+                  {
+                    len: 4,
+                    message: '验证码长度应为4位',
                   },
                 ]}
               />
