@@ -6,21 +6,51 @@
   background: #f0f2f5;
 }
 
+.loginCard {
+  width: 100%;
+  max-width: 420px;
+  margin: 120px auto;
+  border-radius: 8px;
+  
+  :global {
+    .ant-pro-form-login-container {
+      padding: 24px 0;
+    }
+  }
+}
+
 .icon {
-  color: rgba(0, 0, 0, 0.2);
+  color: rgba(0, 0, 0, 0.45);
   font-size: 24px;
-  vertical-align: middle;
   cursor: pointer;
   transition: color 0.3s;
-  margin-left: 16px;
-
+  
   &:hover {
     color: #1890ff;
   }
 }
 
-:global {
-  .ant-pro-form-login-container {
-    padding-top: 100px;
-  }
+.otherLogin {
+  width: 100%;
+  text-align: center;
+}
+
+.prefixIcon {
+  color: rgba(0, 0, 0, 0.25);
+}
+
+.formFooter {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.forgotPassword {
+  float: right;
+  cursor: pointer;
+}
+
+.dividerText {
+  color: rgba(0, 0, 0, 0.45);
+  font-size: 14px;
 } 
