@@ -1,8 +1,8 @@
 {
-  "extends": "./tsconfig.json",
   "compilerOptions": {
-    "target": "ES2022",
-    "lib": ["ES2023"]
+    "composite": true,
+    "moduleResolution": "bundler",
+    "types": ["node"]
   },
   "include": ["vite.config.ts"]
 }

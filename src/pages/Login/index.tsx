@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import {
-  AlipayCircleOutlined,
   LockOutlined,
   MobileOutlined,
-  TaobaoCircleOutlined,
   UserOutlined,
-  WeiboCircleOutlined,
+  GithubOutlined,
+  WechatOutlined,
+  GoogleOutlined,
 } from '@ant-design/icons';
 import {
   LoginForm,
@@ -49,9 +49,9 @@ const Login: React.FC = () => {
         actions={
           <Space>
             其他登录方式
-            <AlipayCircleOutlined className={styles.icon} />
-            <TaobaoCircleOutlined className={styles.icon} />
-            <WeiboCircleOutlined className={styles.icon} />
+            <GoogleOutlined className={styles.icon} />
+            <GithubOutlined className={styles.icon} />
+            <WechatOutlined className={styles.icon} />
           </Space>
         }
         onFinish={handleSubmit}
