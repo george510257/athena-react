@@ -1,10 +1,8 @@
 import type { AccountLoginParams, PhoneLoginParams, LoginResult } from '../types';
 
-const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8082';
-
 export async function loginWithAccount(params: AccountLoginParams): Promise<LoginResult> {
   try {
-    const response = await fetch(`${BASE_URL}/api/login/account`, {
+    const response = await fetch('/api/login/account', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -23,7 +21,7 @@ export async function loginWithAccount(params: AccountLoginParams): Promise<Logi
 
 export async function loginWithPhone(params: PhoneLoginParams): Promise<LoginResult> {
   try {
-    const response = await fetch(`${BASE_URL}/api/login/phone`, {
+    const response = await fetch('/api/login/phone', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -41,12 +39,12 @@ export async function loginWithPhone(params: PhoneLoginParams): Promise<LoginRes
 }
 
 export function getCaptchaUrl(uuid: string): string {
-  return `${BASE_URL}/captcha/image?uuid=${uuid}`;
+  return `/api/captcha/image?uuid=${uuid}`;
 }
 
 export async function getPhoneCaptcha(mobile: string): Promise<LoginResult> {
   try {
-    const response = await fetch(`${BASE_URL}/api/sms/send`, {
+    const response = await fetch('/api/captcha/sms', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

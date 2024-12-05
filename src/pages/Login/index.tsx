@@ -1,5 +1,5 @@
 import React from 'react';
-import { Tabs, Space, Divider, message as antMessage } from 'antd';
+import { Tabs, Space, Divider, message as antMessage, Form } from 'antd';
 import {
   LoginForm,
   ProFormCaptcha,
@@ -33,6 +33,8 @@ const Login: React.FC = () => {
   } = useLogin();
 
   const { loginType, loading, imageCaptchaUrl } = loginState;
+
+  const [form] = Form.useForm();
 
   // 渲染账号登录表单
   const renderAccountForm = () => (
@@ -102,7 +104,14 @@ const Login: React.FC = () => {
         captchaProps={{ size: 'large' }}
         placeholder="验证码"
         rules={formRules.phone.smsCaptcha}
-        onGetCaptcha={handleGetPhoneCaptcha}
+        onGetCaptcha={async () => {
+          try {
+            const values = await form.validateFields(['mobile']);
+            await handleGetPhoneCaptcha(values.mobile);
+          } catch (error) {
+            throw new Error('请输入正确的手机号');
+          }
+        }}
         captchaTextRender={(timing, count) => 
           timing ? `${count} 秒后重新获取` : '获取验证码'
         }
@@ -132,6 +141,7 @@ const Login: React.FC = () => {
     <div className={styles.container}>
       <ProCard className={styles.loginCard}>
         <LoginForm
+          form={form}
           logo={logo}
           title="Athena React"
           subTitle="企业级中后台解决方案"
