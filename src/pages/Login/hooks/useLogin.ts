@@ -1,13 +1,19 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { App } from 'antd';
 import { v4 as uuidv4 } from 'uuid';
-import type { LoginType, LoginState } from '../types';
-import { loginWithAccount, getCaptchaUrl, getPhoneCaptcha } from '../services';
+import type { LoginState, AccountLoginParams, PhoneLoginParams } from '../types';
+import { LoginTypeEnum } from '../types';
+import { 
+  loginWithAccount, 
+  loginWithPhone,
+  getCaptchaUrl, 
+  getPhoneCaptcha 
+} from '../services';
 
 export default function useLogin() {
   const [loginState, setLoginState] = useState<LoginState>({
-    loginType: 'account',
+    loginType: LoginTypeEnum.ACCOUNT,
     loading: false,
     captchaUuid: uuidv4(),
     imageCaptchaUrl: '',
@@ -16,11 +22,7 @@ export default function useLogin() {
   const navigate = useNavigate();
   const { message: antMessage } = App.useApp();
 
-  useEffect(() => {
-    refreshCaptcha();
-  }, []);
-
-  const refreshCaptcha = () => {
+  const refreshCaptcha = useCallback(() => {
     const newUuid = uuidv4();
     const url = getCaptchaUrl(newUuid);
     setLoginState(prev => ({
@@ -28,42 +30,51 @@ export default function useLogin() {
       captchaUuid: newUuid,
       imageCaptchaUrl: url,
     }));
+  }, []);
+
+  useEffect(() => {
+    refreshCaptcha();
+  }, [refreshCaptcha]);
+
+  const handleLoginTypeChange = (type: LoginTypeEnum) => {
+    setLoginState(prev => ({ ...prev, loginType: type }));
   };
 
-  const handleLoginTypeChange = (type: LoginType) => {
-    setLoginState(prev => ({ ...prev, loginType: type }));
+  const handleAccountLogin = async (values: AccountLoginParams) => {
+    const loginResult = await loginWithAccount({
+      ...values,
+      uuid: loginState.captchaUuid
+    });
+    
+    if (loginResult.success) {
+      antMessage.success('登录成功');
+      if (values.rememberMe) {
+        localStorage.setItem('username', values.username);
+      }
+      navigate('/');
+    } else {
+      antMessage.error(loginResult.message || '登录失败');
+      refreshCaptcha();
+    }
+  };
+
+  const handlePhoneLogin = async (values: PhoneLoginParams) => {
+    const loginResult = await loginWithPhone(values);
+    if (loginResult.success) {
+      antMessage.success('登录成功');
+      navigate('/');
+    } else {
+      antMessage.error(loginResult.message || '登录失败');
+    }
   };
 
   const handleSubmit = async (values: Record<string, any>) => {
     setLoginState(prev => ({ ...prev, loading: true }));
     try {
-      if (loginState.loginType === 'account') {
-        const { username, password, imageCaptchaValue } = values;
-        const loginResult = await loginWithAccount({
-          username,
-          password,
-          imageCaptcha: imageCaptchaValue,
-          uuid: loginState.captchaUuid
-        });
-        
-        if (loginResult.success) {
-          antMessage.success('登录成功');
-          if (values.rememberMe) {
-            localStorage.setItem('username', username);
-          }
-          navigate('/');
-        } else {
-          antMessage.error(loginResult.message || '登录失败');
-          refreshCaptcha();
-        }
+      if (loginState.loginType === LoginTypeEnum.ACCOUNT) {
+        await handleAccountLogin(values as AccountLoginParams);
       } else {
-        const { captcha } = values;
-        if (captcha === '1234') {
-          antMessage.success('登录成功');
-          navigate('/');
-        } else {
-          antMessage.error('验证码错误');
-        }
+        await handlePhoneLogin(values as PhoneLoginParams);
       }
     } finally {
       setLoginState(prev => ({ ...prev, loading: false }));
@@ -78,9 +89,13 @@ export default function useLogin() {
     antMessage.info('忘记密码功能开发中');
   };
 
-  const handleGetPhoneCaptcha = async () => {
-    const captcha = await getPhoneCaptcha();
-    antMessage.success(`验证码为: ${captcha}`);
+  const handleGetPhoneCaptcha = async (mobile: string) => {
+    const result = await getPhoneCaptcha(mobile);
+    if (result.success) {
+      antMessage.success('验证码已发送');
+    } else {
+      antMessage.error(result.message || '获取验证码失败');
+    }
   };
 
   return {
@@ -90,6 +105,8 @@ export default function useLogin() {
     refreshCaptcha,
     handleThirdPartyLogin,
     handleForgotPassword,
-    handleGetPhoneCaptcha,
+    handleGetPhoneCaptcha: async (mobile: string) => {
+      await handleGetPhoneCaptcha(mobile);
+    },
   };
 } 

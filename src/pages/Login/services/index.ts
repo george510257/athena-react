@@ -1,8 +1,10 @@
-import type { LoginParams, LoginResult } from '../types';
+import type { AccountLoginParams, PhoneLoginParams, LoginResult } from '../types';
 
-export async function loginWithAccount(params: LoginParams): Promise<LoginResult> {
+const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8082';
+
+export async function loginWithAccount(params: AccountLoginParams): Promise<LoginResult> {
   try {
-    const response = await fetch('/api/login', {
+    const response = await fetch(`${BASE_URL}/api/login/account`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -10,8 +12,26 @@ export async function loginWithAccount(params: LoginParams): Promise<LoginResult
       body: JSON.stringify(params),
     });
     
-    const data = await response.json();
-    return data;
+    return await response.json();
+  } catch (error) {
+    return {
+      success: false,
+      message: '网络请求失败',
+    };
+  }
+}
+
+export async function loginWithPhone(params: PhoneLoginParams): Promise<LoginResult> {
+  try {
+    const response = await fetch(`${BASE_URL}/api/login/phone`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(params),
+    });
+    
+    return await response.json();
   } catch (error) {
     return {
       success: false,
@@ -21,9 +41,24 @@ export async function loginWithAccount(params: LoginParams): Promise<LoginResult
 }
 
 export function getCaptchaUrl(uuid: string): string {
-  return `http://localhost:8082/captcha/image?uuid=${uuid}`;
+  return `${BASE_URL}/captcha/image?uuid=${uuid}`;
 }
 
-export async function getPhoneCaptcha(): Promise<string> {
-  return '1234'; // 模拟获取手机验证码
+export async function getPhoneCaptcha(mobile: string): Promise<LoginResult> {
+  try {
+    const response = await fetch(`${BASE_URL}/api/sms/send`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ mobile }),
+    });
+    
+    return await response.json();
+  } catch (error) {
+    return {
+      success: false,
+      message: '获取验证码失败',
+    };
+  }
 } 

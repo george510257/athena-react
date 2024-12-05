@@ -19,6 +19,7 @@ import { Tabs, Space, Divider } from 'antd';
 import styles from './index.module.less';
 import logo from '@/assets/logo.svg';
 import useLogin from './hooks/useLogin';
+import { LoginTypeEnum } from './types';
 
 const thirdPartyLogins = [
   { Icon: GoogleOutlined, text: 'Google登录' },
@@ -68,14 +69,16 @@ const Login: React.FC = () => {
           <Tabs
             centered
             activeKey={loginType}
-            onChange={(activeKey) => handleLoginTypeChange(activeKey as 'account' | 'phone')}
+            onChange={(activeKey) => handleLoginTypeChange(
+              activeKey === 'account' ? LoginTypeEnum.ACCOUNT : LoginTypeEnum.PHONE
+            )}
             items={[
               {
-                key: 'account',
+                key: LoginTypeEnum.ACCOUNT,
                 label: '账号密码登录',
               },
               {
-                key: 'phone',
+                key: LoginTypeEnum.PHONE,
                 label: '手机号登录',
               },
             ]}
@@ -183,7 +186,7 @@ const Login: React.FC = () => {
                   }
                   return '获取验证码';
                 }}
-                name="captcha"
+                name="smsCaptcha"
                 rules={[
                   {
                     required: true,
@@ -194,7 +197,9 @@ const Login: React.FC = () => {
                     message: '验证码长度应为4位',
                   },
                 ]}
-                onGetCaptcha={handleGetPhoneCaptcha}
+                onGetCaptcha={async (mobile) => {
+                  await handleGetPhoneCaptcha(mobile);
+                }}
               />
             </>
           )}
