@@ -4,13 +4,6 @@ export enum LoginTypeEnum {
   PHONE = 'phone'
 }
 
-// 第三方登录类型
-export interface ThirdPartyLogin {
-  icon: React.ComponentType;
-  text: string;
-  type: string;
-}
-
 // 登录状态
 export interface LoginState {
   loginType: LoginTypeEnum;

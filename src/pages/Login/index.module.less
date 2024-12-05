@@ -19,22 +19,6 @@
   }
 }
 
-.icon {
-  color: rgba(0, 0, 0, 0.45);
-  font-size: 24px;
-  cursor: pointer;
-  transition: color 0.3s;
-  
-  &:hover {
-    color: #1890ff;
-  }
-}
-
-.otherLogin {
-  width: 100%;
-  text-align: center;
-}
-
 .prefixIcon {
   color: rgba(0, 0, 0, 0.25);
 }
@@ -45,12 +29,60 @@
   margin-bottom: 24px;
 }
 
-.forgotPassword {
-  float: right;
-  cursor: pointer;
+.otherLogin {
+  width: 100%;
+  text-align: center;
+  
+  .icon {
+    color: rgba(0, 0, 0, 0.45);
+    font-size: 24px;
+    cursor: pointer;
+    transition: color 0.3s;
+    
+    &:hover {
+      color: #1890ff;
+    }
+  }
+  
+  .dividerText {
+    color: rgba(0, 0, 0, 0.45);
+    font-size: 14px;
+  }
 }
 
-.dividerText {
-  color: rgba(0, 0, 0, 0.45);
+.captchaWrapper {
+  :global {
+    .ant-input-suffix {
+      margin-left: 4px;
+      display: flex;
+      align-items: center;
+      
+      .ant-space {
+        gap: 4px !important;
+      }
+    }
+    
+    .ant-input {
+      height: 40px;
+    }
+  }
+}
+
+.captchaImage {
+  height: 24px;
+  cursor: pointer;
+  vertical-align: middle;
+  border: 1px solid #d9d9d9;
+  border-radius: 2px;
+}
+
+.reloadIcon {
+  cursor: pointer;
   font-size: 14px;
+  color: rgba(0, 0, 0, 0.45);
+  transition: all 0.3s;
+  
+  &:hover {
+    color: #1890ff;
+  }
 } 
