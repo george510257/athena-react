@@ -12,22 +12,42 @@ import type {
 import { LoginTypeEnum } from '../types';
 import { loginApi } from '../services';
 
+/**
+ * 登录页面的核心逻辑 Hook
+ * 处理登录相关的状态管理和业务逻辑
+ */
 export default function useLogin() {
-  // 所有的 hooks 声明放在最前面
+  // ================ Hooks 声明 ================
+  /**
+   * 登录状态管理
+   * - loginType: 当前登录方式（账号密码/手机号）
+   * - loading: 登录加载状态
+   * - captchaUuid: 验证码唯一标识
+   * - imageCaptchaUrl: 图形验证码URL
+   */
   const [loginState, setLoginState] = useState<LoginState>({
     loginType: LoginTypeEnum.ACCOUNT,
     loading: false,
     captchaUuid: uuidv4(),
     imageCaptchaUrl: '',
   });
+
   const navigate = useNavigate();
   const { message: antMessage } = App.useApp();
 
-  // 所有的 useCallback 声明
+  // ================ 状态更新函数 ================
+  /**
+   * 更新登录状态
+   * @param updates 需要更新的状态字段
+   */
   const updateLoginState = useCallback((updates: Partial<LoginState>) => {
     setLoginState(prev => ({ ...prev, ...updates }));
   }, []);
 
+  /**
+   * 刷新图形验证码
+   * 生成新的UUID并更新验证码图片
+   */
   const refreshCaptcha = useCallback(() => {
     const newUuid = uuidv4();
     updateLoginState({
@@ -36,14 +56,27 @@ export default function useLogin() {
     });
   }, [updateLoginState]);
 
+  // ================ 事件处理函数 ================
+  /**
+   * 切换登录方式
+   * @param type 登录类型（账号密码/手机号）
+   */
   const handleLoginTypeChange = useCallback((type: LoginTypeEnum) => {
     updateLoginState({ loginType: type });
   }, [updateLoginState]);
 
+  /**
+   * 处理第三方登录点击
+   * @param loginType 第三方登录类型
+   */
   const handleThirdPartyLogin = useCallback((loginType: string) => {
     antMessage.info(`${loginType}开发中`);
   }, [antMessage]);
 
+  /**
+   * 处理登录成功逻辑
+   * @param values 登录表单值
+   */
   const handleLoginSuccess = useCallback((values: BaseLoginParams) => {
     antMessage.success('登录成功');
     if ('username' in values && values.rememberMe) {
@@ -52,6 +85,10 @@ export default function useLogin() {
     navigate('/');
   }, [navigate, antMessage]);
 
+  /**
+   * 处理登录失败逻辑
+   * @param error 登录错误信息
+   */
   const handleLoginError = useCallback((error: LoginResult) => {
     antMessage.error(error.message || '登录失败');
     if (loginState.loginType === LoginTypeEnum.ACCOUNT) {
@@ -59,6 +96,10 @@ export default function useLogin() {
     }
   }, [loginState.loginType, antMessage, refreshCaptcha]);
 
+  /**
+   * 获取手机验证码
+   * @param mobile 手机号
+   */
   const handleGetPhoneCaptcha = useCallback(async (mobile: string) => {
     try {
       const result = await loginApi.getPhoneCaptcha(mobile);
@@ -72,6 +113,10 @@ export default function useLogin() {
     }
   }, [antMessage]);
 
+  /**
+   * 处理登录表单提交
+   * @param values 登录表单值
+   */
   const handleSubmit = useCallback(async (values: AccountLoginParams | PhoneLoginParams) => {
     updateLoginState({ loading: true });
     try {
@@ -101,11 +146,15 @@ export default function useLogin() {
     antMessage
   ]);
 
-  // useEffect 放在所有 useCallback 之后
+  // ================ Effects ================
+  /**
+   * 初始化时刷新验证码
+   */
   useEffect(() => {
     refreshCaptcha();
   }, [refreshCaptcha]);
 
+  // ================ 返回值 ================
   return {
     loginState,
     handleLoginTypeChange,
