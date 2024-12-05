@@ -47,7 +47,7 @@ export const formRules = {
     ],
     smsCaptcha: [
       { required: true, message: '请输入验证码' },
-      { len: 4, message: '验证码长度应为4位' },
+      { len: 6, message: '验证码长度应为6位' },
     ],
   },
 }; 
