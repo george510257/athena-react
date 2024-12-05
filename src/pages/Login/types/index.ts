@@ -1,10 +1,10 @@
-// 登录方式枚举
+// 枚举类型
 export enum LoginTypeEnum {
   ACCOUNT = 'account',
   PHONE = 'phone'
 }
 
-// 登录状态
+// 状态类型
 export interface LoginState {
   loginType: LoginTypeEnum;
   loading: boolean;
@@ -12,24 +12,34 @@ export interface LoginState {
   imageCaptchaUrl: string;
 }
 
-// 账号密码登录参数
-export interface AccountLoginParams {
+// 请求参数类型
+export interface BaseLoginParams {
+  rememberMe?: boolean;
+}
+
+export interface AccountLoginParams extends BaseLoginParams {
   username: string;
   password: string;
   imageCaptcha: string;
   uuid: string;
-  rememberMe?: boolean;
 }
 
-// 手机登录参数
-export interface PhoneLoginParams {
+export interface PhoneLoginParams extends BaseLoginParams {
   mobile: string;
   smsCaptcha: string;
 }
 
-// 登录响应
-export interface LoginResult {
+// API 响应类型
+export interface ApiResponse<T = any> {
   success: boolean;
   message?: string;
-  token?: string;
-} 
+  data?: T;
+}
+
+export interface LoginResponse {
+  token: string;
+  // 其他登录返回的数据...
+}
+
+export type LoginResult = ApiResponse<LoginResponse>;
+export type CaptchaResult = ApiResponse<void>; 
