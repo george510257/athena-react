@@ -12,6 +12,7 @@ import {
   MobileOutlined,
   UserOutlined,
   ReloadOutlined,
+  SafetyCertificateOutlined,
 } from '@ant-design/icons';
 
 // 本地资源 & 配置
@@ -46,7 +47,7 @@ const Login: React.FC = () => {
           prefix: <UserOutlined className={styles.prefixIcon} />,
         }}
         initialValue={localStorage.getItem('username') || ''}
-        placeholder="用户名: admin"
+        placeholder="请输入用户名"
         rules={formRules.account.username}
       />
       <ProFormText.Password
@@ -55,7 +56,7 @@ const Login: React.FC = () => {
           size: 'large',
           prefix: <LockOutlined className={styles.prefixIcon} />,
         }}
-        placeholder="密码: admin"
+        placeholder="请输入密码"
         rules={formRules.account.password}
       />
       <ProFormText
@@ -63,6 +64,7 @@ const Login: React.FC = () => {
         className={styles.captchaWrapper}
         fieldProps={{
           size: 'large',
+          prefix: <SafetyCertificateOutlined className={styles.prefixIcon} />,
           suffix: (
             <Space align="center" size={8}>
               <img 
@@ -95,14 +97,17 @@ const Login: React.FC = () => {
           size: 'large',
           prefix: <MobileOutlined className={styles.prefixIcon} />,
         }}
-        placeholder="手机号"
+        placeholder="请输入手机号"
         rules={formRules.phone.mobile}
       />
       <ProFormCaptcha
         name="smsCaptcha"
-        fieldProps={{ size: 'large' }}
+        fieldProps={{
+          size: 'large',
+          prefix: <SafetyCertificateOutlined className={styles.prefixIcon} />,
+        }}
         captchaProps={{ size: 'large' }}
-        placeholder="验证码"
+        placeholder="请输入验证码"
         rules={formRules.phone.smsCaptcha}
         onGetCaptcha={async () => {
           try {
