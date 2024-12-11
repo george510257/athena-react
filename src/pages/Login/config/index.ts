@@ -2,14 +2,18 @@ import {
   GithubOutlined,
   WechatOutlined,
   GoogleOutlined,
+  QqOutlined,
 } from '@ant-design/icons';
 import { LoginTypeEnum } from '../types';
+import FeishuIcon from '@/components/FeishuIcon';
 
 // 第三方登录配置
 export const thirdPartyLogins = [
   { Icon: GoogleOutlined, text: 'Google登录' },
   { Icon: GithubOutlined, text: 'Github登录' },
   { Icon: WechatOutlined, text: '微信登录' },
+  { Icon: QqOutlined, text: 'QQ登录' },
+  { Icon: FeishuIcon, text: '飞书登录' },
 ];
 
 // 登录方式标签配置
