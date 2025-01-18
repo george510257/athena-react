@@ -1,50 +1,75 @@
-// 枚举类型，用于定义登录类型
+/**
+ * @file 登录模块类型定义
+ * @description 包含登录相关的枚举、接口和类型定义
+ */
+
+/** 登录方式枚举 */
 export enum LoginTypeEnum {
-  ACCOUNT = 'account', // 账号登录
-  PHONE = 'phone' // 手机登录
+  /** 账号密码登录 */
+  ACCOUNT = 'account',
+  /** 手机验证码登录 */
+  PHONE = 'phone'
 }
 
-// 状态类型，用于定义登录状态
+/** 登录页面状态接口 */
 export interface LoginState {
-  loginType: LoginTypeEnum; // 登录类型
-  loading: boolean; // 加载状态
-  captchaUuid: string; // 验证码UUID
-  imageCaptchaUrl: string; // 图片验证码URL
+  /** 当前选择的登录方式 */
+  loginType: LoginTypeEnum;
+  /** 登录请求loading状态 */
+  loading: boolean;
+  /** 图形验证码标识符 */
+  captchaUuid: string;
+  /** 图形验证码图片地址 */
+  imageCaptchaUrl: string;
 }
 
-// 请求参数类型的基础接口
+/** 登录参数基础接口 */
 export interface BaseLoginParams {
-  rememberMe?: boolean; // 是否记住登录状态
+  /** 是否记住登录状态，用于持久化登录信息 */
+  rememberMe?: boolean;
 }
 
-// 账号登录请求参数接口，继承自BaseLoginParams
+/** 账号密码登录参数接口 */
 export interface AccountLoginParams extends BaseLoginParams {
-  username: string; // 用户名
-  password: string; // 密码
-  imageCaptcha: string; // 图片验证码
-  uuid: string; // 验证码UUID
+  /** 登录用户名 */
+  username: string;
+  /** 登录密码 */
+  password: string;
+  /** 图形验证码答案 */
+  imageCaptcha: string;
+  /** 图形验证码标识符 */
+  uuid: string;
 }
 
-// 手机登录请求参数接口，继承自BaseLoginParams
+/** 手机验证码登录参数接口 */
 export interface PhoneLoginParams extends BaseLoginParams {
-  mobile: string; // 手机号
-  smsCaptcha: string; // 短信验证码
+  /** 手机号码 */
+  mobile: string;
+  /** 短信验证码 */
+  smsCaptcha: string;
 }
 
-// API 响应类型接口，泛型T表示响应数据的类型
+/**
+ * API响应数据通用接口
+ * @template T 响应数据类型
+ */
 export interface ApiResponse<T = any> {
-  success: boolean; // 请求是否成功
-  message?: string; // 消息
-  data?: T;  // 数据
+  /** 请求是否成功 */
+  success: boolean;
+  /** 响应消息 */
+  message?: string;
+  /** 响应数据 */
+  data?: T;
 }
 
-// 登录响应数据接口，继承自ApiResponse
+/** 登录成功返回数据接口 */
 export interface LoginResponse {
+  /** JWT访问令牌 */
   token: string;
-  // 其他登录返回的数据...
 }
 
-// 登录结果类型，继承自ApiResponse
+/** 登录API响应类型 */
 export type LoginResult = ApiResponse<LoginResponse>;
-// 验证码结果类型，继承自ApiResponse
+
+/** 验证码API响应类型 */
 export type CaptchaResult = ApiResponse<void>;

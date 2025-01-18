@@ -13,17 +13,18 @@ import { LoginTypeEnum } from '../types';
 import { loginApi } from '../services';
 
 /**
- * 登录页面的核心逻辑 Hook
- * 处理登录相关的状态管理和业务逻辑
+ * 登录页面核心逻辑 Hook
+ * @description 处理登录状态管理、表单提交、验证码刷新等核心业务逻辑
+ * @returns {Object} 登录相关状态和处理函数
  */
 export default function useLogin() {
-  // ================ Hooks 声明 ================
+  // == State Management ==
   /**
-   * 登录状态管理
-   * - loginType: 当前登录方式（账号密码/手机号）
-   * - loading: 登录加载状态
-   * - captchaUuid: 验证码唯一标识
-   * - imageCaptchaUrl: 图形验证码URL
+   * @state loginState - 登录状态集合
+   * @property {LoginTypeEnum} loginType - 登录方式(账号密码/手机号)
+   * @property {boolean} loading - 登录加载状态
+   * @property {string} captchaUuid - 验证码唯一标识
+   * @property {string} imageCaptchaUrl - 验证码图片地址
    */
   const [loginState, setLoginState] = useState<LoginState>({
     loginType: LoginTypeEnum.ACCOUNT,
@@ -35,10 +36,10 @@ export default function useLogin() {
   const navigate = useNavigate();
   const { message: antMessage } = App.useApp();
 
-  // ================ 状态更新函数 ================
+  // == State Update Functions ==
   /**
    * 更新登录状态
-   * @param updates 需要更新的状态字段
+   * @param {Partial<LoginState>} updates - 需要更新的状态字段
    */
   const updateLoginState = useCallback((updates: Partial<LoginState>) => {
     setLoginState(prev => ({ ...prev, ...updates }));
@@ -46,7 +47,7 @@ export default function useLogin() {
 
   /**
    * 刷新图形验证码
-   * 生成新的UUID并更新验证码图片
+   * @description 生成新的UUID并更新验证码图片URL
    */
   const refreshCaptcha = useCallback(() => {
     const newUuid = uuidv4();
@@ -56,26 +57,26 @@ export default function useLogin() {
     });
   }, [updateLoginState]);
 
-  // ================ 事件处理函数 ================
+  // == Event Handlers ==
   /**
    * 切换登录方式
-   * @param type 登录类型（账号密码/手机号）
+   * @param {LoginTypeEnum} type - 目标登录类型
    */
   const handleLoginTypeChange = useCallback((type: LoginTypeEnum) => {
     updateLoginState({ loginType: type });
   }, [updateLoginState]);
 
   /**
-   * 处理第三方登录点击
-   * @param loginType 第三方登录类型
+   * 处理第三方登录
+   * @param {string} loginType - 第三方登录类型标识
    */
   const handleThirdPartyLogin = useCallback((loginType: string) => {
     antMessage.info(`${loginType}开发中`);
   }, [antMessage]);
 
   /**
-   * 处理登录成功逻辑
-   * @param values 登录表单值
+   * 处理登录成功
+   * @param {BaseLoginParams} values - 登录表单数据
    */
   const handleLoginSuccess = useCallback((values: BaseLoginParams) => {
     antMessage.success('登录成功');
@@ -86,8 +87,8 @@ export default function useLogin() {
   }, [navigate, antMessage]);
 
   /**
-   * 处理登录失败逻辑
-   * @param error 登录错误信息
+   * 处理登录失败
+   * @param {LoginResult} error - 登录错误信息
    */
   const handleLoginError = useCallback((error: LoginResult) => {
     antMessage.error(error.message || '登录失败');
@@ -98,7 +99,8 @@ export default function useLogin() {
 
   /**
    * 获取手机验证码
-   * @param mobile 手机号
+   * @param {string} mobile - 手机号码
+   * @returns {Promise<void>}
    */
   const handleGetPhoneCaptcha = useCallback(async (mobile: string) => {
     try {
@@ -115,7 +117,8 @@ export default function useLogin() {
 
   /**
    * 处理登录表单提交
-   * @param values 登录表单值
+   * @param {AccountLoginParams | PhoneLoginParams} values - 登录表单数据
+   * @returns {Promise<void>}
    */
   const handleSubmit = useCallback(async (values: AccountLoginParams | PhoneLoginParams) => {
     updateLoginState({ loading: true });
@@ -146,15 +149,12 @@ export default function useLogin() {
     antMessage
   ]);
 
-  // ================ Effects ================
-  /**
-   * 初始化时刷新验证码
-   */
+  // == Effects ==
   useEffect(() => {
     refreshCaptcha();
   }, [refreshCaptcha]);
 
-  // ================ 返回值 ================
+  // == Return Values ==
   return {
     loginState,
     handleLoginTypeChange,
@@ -163,4 +163,4 @@ export default function useLogin() {
     handleThirdPartyLogin,
     handleGetPhoneCaptcha,
   };
-} 
+}

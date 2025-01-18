@@ -22,8 +22,11 @@ import { LoginTypeEnum } from './types';
 import { thirdPartyLogins, loginTabs, formRules } from './config';
 import useLogin from './hooks/useLogin';
 
-// 登录表单组件
+// -----------------------------
+// 核心登录组件
+// -----------------------------
 const Login: React.FC = () => {
+  // 状态与钩子函数
   const {
     loginState,
     handleLoginTypeChange,
@@ -37,7 +40,14 @@ const Login: React.FC = () => {
 
   const [form] = Form.useForm();
 
-  // 渲染账号登录表单
+  // -----------------------------
+  // 表单渲染函数
+  // -----------------------------
+  
+  /**
+   * 渲染账号密码登录表单
+   * 包含：用户名、密码、图形验证码
+   */
   const renderAccountForm = () => (
     <>
       <ProFormText
@@ -88,7 +98,10 @@ const Login: React.FC = () => {
     </>
   );
 
-  // 渲染手机号登录表单
+  /**
+   * 渲染手机号登录表单
+   * 包含：手机号输入、短信验证码
+   */
   const renderPhoneForm = () => (
     <>
       <ProFormText
@@ -124,7 +137,10 @@ const Login: React.FC = () => {
     </>
   );
 
-  // 渲染第三方登录
+  /**
+   * 渲染第三方登录选项
+   * 显示第三方登录图标和分割线
+   */
   const renderOtherLogin = () => (
     <div className={styles.otherLogin}>
       <Divider plain>
@@ -142,6 +158,9 @@ const Login: React.FC = () => {
     </div>
   );
 
+  // -----------------------------
+  // 主渲染函数
+  // -----------------------------
   return (
     <div className={styles.container}>
       <ProCard className={styles.loginCard}>
@@ -180,4 +199,4 @@ const Login: React.FC = () => {
   );
 };
 
-export default Login; 
+export default Login;
